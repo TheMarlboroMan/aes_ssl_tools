@@ -2,12 +2,12 @@
 #define OPENSSL_THREAD_MANAGER_H
 
 #include <vector>
-#include <stdio.h>
-#include <stdlib.h>
 #include <mutex>
 
 #include <openssl/err.h>
- 
+
+namespace openssl_tools {
+
 //These are required by openssl in multithreading mode.
 void locking_function(int mode, int n, const char * file, int line);
 unsigned long id_function(void);
@@ -30,5 +30,7 @@ class openssl_thread_manager {
 	friend void locking_function(int mode, int n, const char * file, int line);
 	friend unsigned long id_function(void);
 }; 
+
+}
 
 #endif
