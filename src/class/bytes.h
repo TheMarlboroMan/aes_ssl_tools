@@ -28,7 +28,7 @@ struct bytes {
 
 	//!Copy constructor.
 								bytes(const bytes&);
-								
+
 	//!Partial copy constructor. Will attempt to copy _size items from _other,
 	//!unless _other.size() is smaller than _size, in which case it will copy
 	//!_other.size().
@@ -39,6 +39,10 @@ struct bytes {
 								~bytes();
 
 	bytes 						operator+(const bytes& _other);
+	//TODO:
+	//bytes						operator+=(byte)
+	//bytes						operator+=(const byte *)
+	//bytes						operator+=(const std::string&)
 	bytes&						operator+=(const bytes& _other);
 
 	//!Gets a new chunk of bytes from "begin" until _len bytes. If _len is 
