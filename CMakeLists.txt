@@ -10,6 +10,9 @@ add_compile_options(-Wall -Wextra -Wundef -Wcast-align -Wwrite-strings -Wlogical
 set(SOURCE "")
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 
-add_library(openssl_thread_manager STATIC ${SOURCE})
-install(TARGETS openssl_thread_manager DESTINATION /usr/lib)
-install(DIRECTORY src/class/ DESTINATION include/openssl_thread_manager FILES_MATCHING PATTERN "*.h")
+add_library(openssl_tools STATIC ${SOURCE})
+install(TARGETS openssl_tools DESTINATION /usr/lib)
+install(DIRECTORY src/class/ DESTINATION include/openssl_tools FILES_MATCHING PATTERN "*.h")
+
+add_executable(main src/main.cpp)
+target_link_libraries(main openssl_tools ssl crypto)

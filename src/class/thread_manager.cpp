@@ -1,13 +1,13 @@
-#include "openssl_thread_manager.h"
+#include "thread_manager.h"
 
 #include <stdexcept>
 
 using namespace openssl_tools;
 
-size_t openssl_tools::openssl_thread_manager::instances=0;
-std::vector<std::mutex> openssl_tools::openssl_thread_manager::mutex_buf(CRYPTO_num_locks());
+size_t openssl_tools::thread_manager::instances=0;
+std::vector<std::mutex> openssl_tools::thread_manager::mutex_buf(CRYPTO_num_locks());
 
-openssl_thread_manager::openssl_thread_manager() {
+thread_manager::thread_manager() {
 
 	if(!instances) {
 		++instances;
@@ -16,7 +16,7 @@ openssl_thread_manager::openssl_thread_manager() {
 	}
 }
 
-openssl_thread_manager::~openssl_thread_manager() {
+thread_manager::~thread_manager() {
 
 	--instances;
 
@@ -26,7 +26,7 @@ openssl_thread_manager::~openssl_thread_manager() {
 	}
 }
 
-void openssl_thread_manager::check_max_threads(size_t th) {
+void thread_manager::check_max_threads(size_t th) {
 
 	if(th > (size_t)CRYPTO_num_locks()) {
 		
@@ -38,10 +38,10 @@ void openssl_tools::locking_function(int mode, int n, const char * /*file*/ , in
 
 	try {
 		if(mode & CRYPTO_LOCK) {
-			openssl_tools::openssl_thread_manager::mutex_buf[n].lock();
+			openssl_tools::thread_manager::mutex_buf[n].lock();
 		}
 		else {
-			openssl_tools::openssl_thread_manager::mutex_buf[n].unlock();
+			openssl_tools::thread_manager::mutex_buf[n].unlock();
 		}
 	}
 	catch(std::exception& e) {
