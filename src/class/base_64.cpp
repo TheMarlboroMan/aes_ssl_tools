@@ -48,7 +48,11 @@ bytes openssl_tools::base64_encode(const bytes& _bytes) {
 
 bytes openssl_tools::base64_decode(const bytes& _bytes) {
 
+	std::lock_guard<std::mutex> lock{mtx_out33};
+	std::cout<<"this is a very long string with a very long thing of very long characters and this and that and that and there"<<std::endl;
+
 	auto calculate_length=[](const bytes& _input) {
+		
 		size_t	len=_input.size(),
 				padding=0;
 
@@ -63,7 +67,7 @@ bytes openssl_tools::base64_decode(const bytes& _bytes) {
 	};
 	
 	size_t decoded_length=calculate_length(_bytes);
-	bytes result{decoded_length};
+	bytes result{decoded_length};	
 
 	BIO *	bio=BIO_new_mem_buf(_bytes, -1),
 		*	b64=BIO_new(BIO_f_base64());

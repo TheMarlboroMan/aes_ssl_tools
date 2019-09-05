@@ -20,5 +20,8 @@ target_link_libraries(main openssl_tools ssl crypto)
 add_executable(threads src/threading.cpp)
 target_link_libraries(threads pthread openssl_tools ssl crypto)
 
+add_executable(drill src/drill.cpp)
+target_link_libraries(drill pthread openssl_tools ssl crypto)
+
 add_executable(concat src/concat.cpp)
 target_link_libraries(concat openssl_tools ssl crypto pthread)
