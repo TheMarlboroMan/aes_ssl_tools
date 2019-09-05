@@ -8,9 +8,13 @@ using namespace openssl_tools;
 
 bytes::bytes(const std::string& _str):
 	data(_str.size(), '\0') {
-
+	
 	byte * b=reinterpret_cast<byte *>(const_cast<char *>(_str.c_str()));
 	std::memcpy(&data[0], b, _str.size());		
+
+//	byte src[_str.size()]={reinterpret_cast<byte *>(const_cast<char *>(_str.c_str()))};
+//	std::copy(std::begin(src), std::end(src), std::begin(data));
+
 }
 
 bytes::bytes(size_t _size):
