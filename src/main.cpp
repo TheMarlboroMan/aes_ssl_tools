@@ -11,6 +11,9 @@ int main(int /*argc*/, char ** /*argv*/) {
 
 	try {
 
+		//Please, initialize your openssl stuff as needed!
+		EVP_add_cipher(EVP_aes_128_cbc());
+
 		//Bytes are the center of the library... They are just that, a sequence
 		//of bytes.
 
