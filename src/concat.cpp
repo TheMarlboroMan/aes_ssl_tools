@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include <openssl_tools/exception.h>
-#include <openssl_tools/bytes.h>
-#include <openssl_tools/base_64.h>
+#include "class/exception.h"
+#include "class/bytes.h"
+#include "class/base_64.h"
 
 int main(int argc, char ** argv) {
 

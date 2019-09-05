@@ -8,12 +8,12 @@
 
 #include <openssl/aes.h>
 
-#include <openssl_tools/thread_manager.h>
-#include <openssl_tools/random.h>
-#include <openssl_tools/bytes.h>
-#include <openssl_tools/base_64.h>
-#include <openssl_tools/aes.h>
-#include <openssl_tools/exception.h>
+#include "class/thread_manager.h"
+#include "class/random.h"
+#include "class/bytes.h"
+#include "class/base_64.h"
+#include "class/aes.h"
+#include "class/exception.h"
 
 struct crypt_pack {
 
@@ -23,7 +23,8 @@ struct crypt_pack {
 struct full_pack {
 
 	openssl_tools::bytes		key, iv, message;
-	std::string					payload;
+	std::string					original,
+								payload;
 };
 
 struct results_base_pack {
@@ -74,7 +75,7 @@ struct plain_results_pack:
 void test_encrypt(const std::string, crypt_results_pack&);
 void test_decrypt(const openssl_tools::bytes&, const openssl_tools::bytes&, const openssl_tools::bytes&, plain_results_pack&);
 void test_encrypt_full(const std::string, full_results_pack&);
-void test_decrypt_full(const openssl_tools::bytes&, const openssl_tools::bytes&, const openssl_tools::bytes&, const std::string&, plain_results_pack&);
+void test_decrypt_full(const openssl_tools::bytes&, const openssl_tools::bytes&, const openssl_tools::bytes&, const std::string&, const std::string&, plain_results_pack&);
 void encrypt(const std::string&, plain_results_pack&);
 void decrypt(const std::string&, plain_results_pack&);
 void do_tests(const std::vector<std::string>&);
@@ -201,6 +202,7 @@ void do_tests_full(const std::vector<std::string>& _input_strings) {
 			std::ref(_cr.key), 
 			std::ref(_cr.iv), 
 			std::ref(_cr.message), 
+			std::ref(_cr.original),
 			std::ref(_cr.payload), 
 			std::ref(decrypted)));
 	}
@@ -295,20 +297,17 @@ void test_encrypt_full(const std::string _str, full_results_pack& _pack) {
 		openssl_tools::bytes all=key+iv+cyphered;
 		openssl_tools::bytes encoded=openssl_tools::base64_encode(all);
 
-		{
-		std::lock_guard<std::mutex> lock{mtx_out};
-		std::cout<<"for "<<_str<<std::endl
-				<<"key "<<openssl_tools::base64_encode(key)<<std::endl
-				<<"iv  "<<openssl_tools::base64_encode(iv)<<std::endl
-				<<"cyphered "<<openssl_tools::base64_encode(cyphered)<<std::endl
-				<<"got "<<encoded<<std::endl
-				<<std::endl;
-		}
+//		{
+//		std::lock_guard<std::mutex> lock{mtx_out};
+//		std::cout<<"for "<<_str<<std::endl
+//				<<"key "<<openssl_tools::base64_encode(key)<<std::endl
+//				<<"iv  "<<openssl_tools::base64_encode(iv)<<std::endl
+//				<<"cyphered "<<openssl_tools::base64_encode(cyphered)<<std::endl
+//				<<"got "<<encoded<<std::endl
+//				<<std::endl;
+//		}
 
-		_pack.add({key, iv, cyphered, encoded.to_string()});
-//		std::string crap="Ri/slvUe3ESg3KIl+JlJomhyP4kcn9EIvD4frLLmdQU/0KJ2hU95fTUFjoUE5P8YZhk6+vFv0f+qn1jmOGO1TW9WCkhNmTIvAjC1RDCia2wrL6WBTMXnaxHNo+UeT7cU";
-//		openssl_tools::bytes crap2{"hola"};
-//		_pack.add({crap2, crap2, crap2, crap});
+		_pack.add({key, iv, cyphered, _str, encoded.to_string()});
 	}	
 	catch(std::exception& e) {
 		_pack.set_fail();
@@ -316,20 +315,32 @@ void test_encrypt_full(const std::string _str, full_results_pack& _pack) {
 	}
 }
 
-void test_decrypt_full(const openssl_tools::bytes& _key, const openssl_tools::bytes& _iv, const openssl_tools::bytes& _message, const std::string& _payload, plain_results_pack& _pack) {
+void test_decrypt_full(
+	const openssl_tools::bytes& _key, 
+	const openssl_tools::bytes& _iv, 
+	const openssl_tools::bytes& _message, 
+	const std::string& _original, 
+	const std::string& _payload, 
+	plain_results_pack& _pack) {
 
 	try {
 		//A base 64 string enters...
-		openssl_tools::bytes decoded=openssl_tools::base64_decode({_payload});
+		//TODO: Fuck, it is somewhere here....
+//		openssl_tools::bytes decoded=openssl_tools::base64_decode({_payload});
+	
+
 		//We know the first AES_BLOCK_SIZE is the key, then IV and the rest is the
 		//message so...
 
-		openssl_tools::bytes 	key=decoded.range(0, AES_BLOCK_SIZE),
-			iv=decoded.range(AES_BLOCK_SIZE, AES_BLOCK_SIZE),
-			cyphered=decoded.range(2*AES_BLOCK_SIZE),
-			decyphered=openssl_tools::aes_128_cbc_decrypt(key, iv, cyphered);
+//		openssl_tools::bytes 	key=decoded.range(0, AES_BLOCK_SIZE),
+//			iv=decoded.range(AES_BLOCK_SIZE, AES_BLOCK_SIZE),
+//			cyphered=decoded.range(2*AES_BLOCK_SIZE),
+		openssl_tools::bytes decyphered=openssl_tools::aes_128_cbc_decrypt(_key, _iv, _message);
 
-		//TODO: Almost good... there are extra padding chars.
+		if(decyphered.to_string() != _original) {
+			_pack.set_fail();
+			std::cout<<"DECODED ENTITY DIFFERS..."<<std::endl;
+		}
 
 		_pack.add(decyphered.to_string());
 	}

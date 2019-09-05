@@ -1,4 +1,4 @@
-#include "base_64.h"
+	#include "base_64.h"
 
 #include <string>
 
@@ -43,30 +43,11 @@ bytes openssl_tools::base64_encode(const bytes& _bytes) {
 	BIO_free_all(b64);
 
 	return result;
-
 }
 
 bytes openssl_tools::base64_decode(const bytes& _bytes) {
 
-	std::lock_guard<std::mutex> lock{mtx_out33};
-	std::cout<<"this is a very long string with a very long thing of very long characters and this and that and that and there"<<std::endl;
-
-	auto calculate_length=[](const bytes& _input) {
-		
-		size_t	len=_input.size(),
-				padding=0;
-
-		if('='==_input.get()[len-2]) {
-			padding=2;
-		}
-		else if('='==_input.get()[len-1]) {
-			padding=1;
-		}
-		
-		return (len*3)/4-padding;
-	};
-	
-	size_t decoded_length=calculate_length(_bytes);
+	size_t decoded_length=base64_calculate_length(_bytes);
 	bytes result{decoded_length};	
 
 	BIO *	bio=BIO_new_mem_buf(_bytes, -1),
@@ -83,4 +64,20 @@ bytes openssl_tools::base64_decode(const bytes& _bytes) {
 
 	BIO_free_all(bio);
 	return result;
+}
+
+size_t openssl_tools::base64_calculate_length(const bytes& _bytes) {
+	
+	size_t	len=_bytes.size(),
+			padding=0;
+
+	//TODO: Could it be that we need to covert this data???
+	if('='==_bytes.get()[len-2]) {
+		padding=2;
+	}
+	else if('='==_bytes.get()[len-1]) {
+		padding=1;
+	}
+	
+	return (len*3)/4-padding;
 }

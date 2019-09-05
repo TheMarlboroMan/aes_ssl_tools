@@ -8,6 +8,7 @@ namespace openssl_tools {
 
 bytes base64_encode(const bytes&);
 bytes base64_decode(const bytes&);
+size_t base64_calculate_length(const bytes&);
 
 }
 
