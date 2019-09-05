@@ -38,12 +38,16 @@ struct bytes {
 	//!eavesdropping. Not secure enough, but hey...
 								~bytes();
 
+	//!Creates a new instance from the addition of two.
 	bytes 						operator+(const bytes& _other);
-	//TODO:
-	//bytes						operator+=(byte)
-	//bytes						operator+=(const byte *)
-	//bytes						operator+=(const std::string&)
+	
+	//!Concatenates bytes.
 	bytes&						operator+=(const bytes& _other);
+	//!Concatenates a single byte. If you want to do more than this, perhaps
+	//!you should consider creating a new bytes instance from that data.
+	//bytes&						operator+=(const byte);
+	//bytes&					operator+=(const byte *)
+	//bytes&					operator+=(const std::string&)
 
 	//!Gets a new chunk of bytes from "begin" until _len bytes. If _len is 
 	//!zero it just gets the data to the end.

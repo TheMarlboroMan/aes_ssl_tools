@@ -52,13 +52,13 @@ bytes openssl_tools::base64_decode(const bytes& _bytes) {
 		size_t	len=_input.size(),
 				padding=0;
 
-		if('='==_input.get()[len-1]) {
-			padding=1;
-		}
-		else if('='==_input.get()[len-2]) {
+		if('='==_input.get()[len-2]) {
 			padding=2;
 		}
-
+		else if('='==_input.get()[len-1]) {
+			padding=1;
+		}
+		
 		return (len*3)/4-padding;
 	};
 	

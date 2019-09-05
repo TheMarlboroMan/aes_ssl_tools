@@ -70,7 +70,16 @@ bytes& bytes::operator+=(const bytes& _other) {
 	data.resize(size()+_other.size(), '\0');
 	std::copy(std::begin(_other.data), std::end(_other.data), std::begin(data)+prevsize);
 	return *this;
-}	
+}
+
+/*
+bytes& bytes::operator+=(bytes::byte _byte) {
+
+	data.resize(size()+1, '\0');
+	std::memcpy(std::end(data), &_byte, 1);
+	return *this;
+}
+*/
 
 //!Gets a new chunk of bytes from "begin" until _len bytes. If _len is 
 //!zero it just gets the data to the end.
