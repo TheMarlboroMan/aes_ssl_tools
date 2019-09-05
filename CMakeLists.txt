@@ -16,3 +16,6 @@ install(DIRECTORY src/class/ DESTINATION include/openssl_tools FILES_MATCHING PA
 
 add_executable(main src/main.cpp)
 target_link_libraries(main openssl_tools ssl crypto)
+
+add_executable(threads src/threading.cpp)
+target_link_libraries(threads pthread openssl_tools ssl crypto)
