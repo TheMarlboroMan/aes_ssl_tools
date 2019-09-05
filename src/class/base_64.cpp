@@ -1,13 +1,13 @@
 #include "base_64.h"
 
 #include <string>
-#include <stdexcept>
 
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
 
 #include "bytes.h"
+#include "exception.h"
 
 using namespace openssl_tools;
 
@@ -69,14 +69,7 @@ bytes openssl_tools::base64_decode(const bytes& _bytes) {
 	int read=BIO_read(bio, result, _bytes.size());
 
 	if((int)decoded_length != read) {
-		throw std::runtime_error(
-			std::string("failure to decode base64 string, bio read returned '")
-			+std::to_string(read)
-			+"' instead of the expected '"
-			+std::to_string(decoded_length)
-			+"'\n"
-			+_bytes.to_string()
-		);
+		throw base64_decode_exception(read, decoded_length, _bytes);			
 	}
 
 	BIO_free_all(bio);

@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <string>
 
+#include "bytes.h"
+
 namespace openssl_tools {
 
 class exception:
@@ -13,6 +15,21 @@ class exception:
 			:std::runtime_error(_e) {
 
 			}
+};
+
+class base64_decode_exception
+	:public exception {
+	public:
+
+	size_t			read,			//!Size read
+					expected;		//!Expected size
+	bytes			subject;		//!Copy of the bytes that caused the problem
+
+					base64_decode_exception(size_t _read, size_t _expected, const bytes& _bytes):
+		exception{"failure in base64_decode"},
+		read{_read}, 
+		expected{_expected}, 
+		subject{_bytes} {}
 };
 
 }

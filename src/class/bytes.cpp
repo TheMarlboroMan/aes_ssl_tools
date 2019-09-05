@@ -1,6 +1,7 @@
 #include "bytes.h"
 
 #include <stdexcept>
+#include <algorithm>
 #include <cstring>
 
 using namespace openssl_tools;
@@ -32,7 +33,7 @@ bytes::bytes(const char * _data, size_t _size):
 bytes::bytes(const bytes& _other):
 	data(_other.size(), '\0') {
 
-	std::memcpy(&data[0], &_other.data[0], _other.size());
+	std::copy(std::begin(_other.data), std::end(_other.data), std::begin(data));
 }
 
 bytes::bytes(const bytes& _other, size_t _size):
@@ -42,27 +43,28 @@ bytes::bytes(const bytes& _other, size_t _size):
 		? _other.size()
 		: _size;
 
-	std::memcpy(&data[0], &_other.data[0], copysize);
+	std::copy(std::begin(_other.data), std::begin(_other.data)+copysize, std::begin(data));
 }
 
 bytes::~bytes() {
 
-	std::memset(&data[0], '\0', size());		
+	std::fill(std::begin(data), std::end(data), '\0');
 }
 
 
 bytes bytes::operator+(const bytes& _other) {
 
 	bytes result{*this, size()+_other.size()};
-	std::memcpy(&result.data[0]+size(), &_other.data[0], _other.size());
+	std::copy(std::begin(_other.data), std::end(_other.data), std::begin(result.data)+size());
 
 	return result;
 }
 
 bytes& bytes::operator+=(const bytes& _other) {
 
+	size_t prevsize=size();
 	data.resize(size()+_other.size(), '\0');
-	std::memcpy(&data[0]+size(), &_other.data[0], _other.size());
+	std::copy(std::begin(_other.data), std::end(_other.data), std::begin(data)+prevsize);
 	return *this;
 }	
 
@@ -79,8 +81,7 @@ bytes bytes::range(size_t _begin, size_t _len) {
 	}
 
 	bytes result{_len};
-	//TODO: Are there not vector implementations for this????
-	std::memcpy(&result[0], &data[0]+_begin, _len);	
+	std::copy(std::begin(data)+_begin, std::begin(data)+_begin+_len, std::begin(result.data));
 	return result;
 }
 
