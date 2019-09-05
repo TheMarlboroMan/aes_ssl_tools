@@ -32,6 +32,17 @@ class base64_decode_exception
 		subject{_bytes} {}
 };
 
+class base64_encode_exception
+	:public exception {
+	public:
+
+	bytes			subject;		//!Copy of the bytes that caused the problem
+
+					base64_encode_exception(const std::string& _msg, const bytes& _bytes):
+		exception{"failure in base64_encode : "+_msg},
+		subject{_bytes} {}
+};
+
 }
 
 #endif

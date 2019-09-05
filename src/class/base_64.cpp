@@ -11,34 +11,39 @@
 
 using namespace openssl_tools;
 
+#include <mutex>
+std::mutex mtx_out33;
+
 bytes openssl_tools::base64_encode(const bytes& _bytes) {
 
 	//TODO: I am pretty much sure this is leaking...
-	BIO* b64=BIO_new(BIO_f_base64());
-	BIO* bm=BIO_new(BIO_s_mem());
+	BIO	* b64=BIO_new(BIO_f_base64()),
+		* bmem=BIO_new(BIO_s_mem());
 
-	b64=BIO_push(b64,bm);
+	BIO_push(b64,bmem);
 	BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
 	if(BIO_write(b64,_bytes, _bytes.size())<2) {
-		throw std::runtime_error("openssl BIO_write() failed");
+		//TODO: Leaking...
+		throw base64_encode_exception{"BIO_write", _bytes};
 	}
 
 	if(BIO_flush(b64)<1) {
-		throw std::runtime_error("openssl BIO_flush() failed");
+		//TODO: Leaking...
+		throw base64_encode_exception{"BIO_flush", _bytes};
 	}
 
 	BUF_MEM * bptr=nullptr;
 	BIO_get_mem_ptr(b64, &bptr);
 
-	bytes result{bptr->data, bptr->length};
+	bytes result{reinterpret_cast<const bytes::byte *>(bptr->data), bptr->length};
 	
 	//TODO: Use fucking RAII techniques and deleters for this.
-
-	BIO_set_close(bm, BIO_NOCLOSE);
+	BIO_set_close(bmem, BIO_NOCLOSE);
 	BIO_free_all(b64);
 
 	return result;
+
 }
 
 bytes openssl_tools::base64_decode(const bytes& _bytes) {

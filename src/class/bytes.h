@@ -12,14 +12,26 @@ struct bytes {
 
 	using byte=unsigned char;
 
+	//!Create a sequence of bytes from a std::string.
 								bytes(const std::string& _str);		
+
+	//!Creates a sequence of bytes with _size length, initialized to \0.								
 								bytes(size_t _size);
 
-	//This is absolutely intentional: size must be given for padding purposes,
-	//as the string will be padded along. This is needed for the crypt 
-	//part, in which we create instances of this from other data!!!!.	
-								bytes(const char * _data, size_t _size);
+	//Creates a sequece of bytes up to _size bytes from data. If _data is 
+	//shorter than _size, prepare for an afternoon of debugging.
+								bytes(const byte * _data, size_t _size);
+
+	//Creates a sequence of data of _size length, and fills it with _copy bytes
+	//from _data. _data should have at least _size bytes...
+								bytes(const byte * _data, size_t _copy, size_t _size);
+
+	//!Copy constructor.
 								bytes(const bytes&);
+								
+	//!Partial copy constructor. Will attempt to copy _size items from _other,
+	//!unless _other.size() is smaller than _size, in which case it will copy
+	//!_other.size().
 								bytes(const bytes& _other, size_t _size);
 
 	//!Class destructor, wipes the memory, just in case someone is 

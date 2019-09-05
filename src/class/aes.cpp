@@ -21,7 +21,7 @@ bytes openssl_tools::aes_128_cbc_encrypt(const bytes& _key, const bytes& _iv, co
     size_t pad_len=_in.size()+blocksize-(_in.size() % blocksize);
 
 	//Great, now we can have these inputs and outputs...
-	bytes 	input{_in, pad_len},
+	bytes 	input{_in, _in.size(), pad_len},
 			output{pad_len+blocksize};	//Apparently we need some more blocksize :/.
 
 	int 	cypher_length=0,

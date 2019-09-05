@@ -19,17 +19,32 @@ int main(int /*argc*/, char ** /*argv*/) {
 
 		//For convenience sake, they can be created on a variety of ways...
 		openssl_tools::bytes 	
-				b_from_string(std::string("hello")), //5 bytes, with "hello"
-				b_empty(10),		//10 bytes, initialized with \0
-				b_padded("world", 10); //10 bytes, the first 5 are hello, the rest are \0
+				//5 bytes, with "hello"
+				b_from_string(std::string("hello")), 
+				//10 bytes, initialized with \0
+				b_empty(10),		
+				//This is a WONDERFUL way of shotting oneself in the foot. Even
+				//if it is intentionally hard to write it could happen so let's
+				//warn ourselves: copying 10 bytes from "world" will copy 
+				//"world" and 5 more garbage bytes. Don't do this!!!!
+				//10 bytes, the first 5 are hello, the rest are garbage
+				b_padded_garbage(reinterpret_cast<const openssl_tools::bytes::byte *>("world"), 10), 
+				//This is the way to do padded data with a source... intentionally
+				//hard to write, of course: first the data, then the length to copy
+				//and then the desired sequence size.
+				//10 bytes, the first 5 are hello, the rest are \0
+				b_padded(reinterpret_cast<const openssl_tools::bytes::byte *>("world"), 5, 10);
+
 
 		//Bytes have the stream output overload, for convenience sake...
 		std::cout<<"from string: "<<b_from_string<<std::endl
 				<<"empty: "<<b_empty<<std::endl
+				<<"padded (garbage expected, should be 'world'): "<<b_padded_garbage<<std::endl
 				<<"padded: "<<b_padded<<std::endl;
 
+
 		//Bytes can be concatenated...
-		openssl_tools::bytes b_concatenation=b_from_string+b_padded; //15 bytes, helloworld and 5 padding.
+		openssl_tools::bytes b_concatenation=b_from_string+b_padded; //15 bytes, helloworld and 5 garbage.
 
 		std::cout<<"concatenation: "<<b_concatenation<<std::endl;
 

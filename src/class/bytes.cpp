@@ -22,16 +22,16 @@ bytes::bytes(size_t _size):
 
 }
 
-bytes::bytes(const char * _data, size_t _size):
+bytes::bytes(const byte * _bytes, size_t _size):
 	data(_size, '\0') {
 
-	//Fuck the world.
-	byte * b=reinterpret_cast<byte *>(const_cast<char *>(_data));
+	std::memcpy(&data[0], _bytes, _size);
+}
 
-	//TODO: Check me, where am I being called that changing _size for 
-	//strlen(_data) makes me go boom??
-	//std::memcpy(&data[0], b, _size);
-	std::memcpy(&data[0], b, strlen(_data));
+bytes::bytes(const byte * _bytes, size_t _copy, size_t _size):
+	data(_size, '\0') {
+
+	std::memcpy(&data[0], _bytes, _copy);
 }
 
 bytes::bytes(const bytes& _other):
