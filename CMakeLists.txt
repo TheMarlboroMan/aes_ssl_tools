@@ -23,6 +23,9 @@ target_link_libraries(threads pthread openssl_tools ssl crypto)
 add_executable(drill src/drill.cpp)
 target_link_libraries(drill pthread openssl_tools ssl crypto)
 
+add_executable(encrypt src/encrypt.cpp)
+target_link_libraries(encrypt ssl crypto openssl_tools)
+
 add_executable(decrypt src/decrypt.cpp)
 target_link_libraries(decrypt ssl crypto openssl_tools)
 

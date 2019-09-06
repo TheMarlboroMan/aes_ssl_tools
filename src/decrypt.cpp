@@ -12,36 +12,25 @@ int main(int argc, char ** argv) {
 	
 	try {
 
-		if(2!=argc) {
+		if(3!=argc) {
 
-			std::cerr<<"use "<<argv[0]<<" filename"<<std::endl<<"decrypts a file whose contents are a key, the IV and a string that was encrypted with AES-128-CBC"<<std::endl;
+			std::cerr<<"use "<<argv[0]<<" base64key base64message"<<std::endl
+			<<"decrypts a message with the given key."<<std::endl
+			<<"the base64 message should have the IV and AES-128-CBC encrypted message concatenated"<<std::endl;
 			return 1;
 		}
 
 		EVP_add_cipher(EVP_aes_128_cbc());
 
-		std::ifstream file(argv[1]);
+		openssl_tools::bytes base64key{std::string{argv[1]}},
+				base64data{std::string{argv[2]}},				
+				key{openssl_tools::base64_decode(base64key)},
+				data{openssl_tools::base64_decode(base64data)},
+				iv=data.range(0, AES_BLOCK_SIZE),
+				message=data.range(AES_BLOCK_SIZE),
+				decoded=openssl_tools::aes_128_cbc_decrypt(key, iv, message);
 
-		//Get length of file...
-		file.seekg (0, file.end);
-		size_t length=file.tellg();
-		file.seekg (0, file.beg);
-
-		openssl_tools::bytes filedump{length};
-		file.read(reinterpret_cast<char *>(filedump.get().data()), length);
-
-		openssl_tools::bytes key=filedump.range(0, AES_BLOCK_SIZE),
-			iv=filedump.range(AES_BLOCK_SIZE, AES_BLOCK_SIZE),
-			message=filedump.range(AES_BLOCK_SIZE*2),
-			decoded=openssl_tools::aes_128_cbc_decrypt(key, iv, message);
-		
 		std::cout<<decoded.to_string()<<std::endl;
-
-		openssl_tools::bytes encoded64=openssl_tools::base64_encode(key+iv+message);
-		openssl_tools::bytes decoded64=openssl_tools::base64_decode(encoded64);
-
-		assert(decoded64==key+iv+message);
-
 		return 0;
 	}
 	catch(std::exception& e) {
