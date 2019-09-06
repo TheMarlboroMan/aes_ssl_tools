@@ -13,9 +13,9 @@ int main(int argc, char ** argv) {
 	
 	try {
 
-		if(2!=argc) {
+		if( argc < 2 || argc > 3 ) {
 
-			std::cerr<<"use "<<argv[0]<<" message"<<std::endl
+			std::cerr<<"use "<<argv[0]<<" message [base64encodedkey]"<<std::endl
 			<<"encrypts a message with AES-128-CBC."<<std::endl
 			<<"the first 16 bits of the base64 encoded message will be IV."<<std::endl
 			<<"output lines are as follows:"<<std::endl
@@ -30,7 +30,9 @@ int main(int argc, char ** argv) {
 
 		std::string str_msg(argv[1]);
 		
-		openssl_tools::bytes key=openssl_tools::random_bytes(AES_BLOCK_SIZE),
+		openssl_tools::bytes key=argc==2
+				? openssl_tools::random_bytes(AES_BLOCK_SIZE)
+				: openssl_tools::base64_decode(std::string{argv[2]}),
 			iv=openssl_tools::random_bytes(AES_BLOCK_SIZE),
 			message{str_msg},
 			encrypted=openssl_tools::aes_128_cbc_encrypt(key, iv, message);
