@@ -148,6 +148,22 @@ std::string bytes::to_string() const {
 	return std::string{reinterpret_cast<const char *>(&data[0]), size()-padding};
 } 
 
+bytes bytes::trimmed() {
+
+	bytes res{*this};
+	res.trim();
+	return res;
+}
+
+bytes& bytes::trim() {
+
+	while(size() && '\0'==data.back()) {
+		data.pop_back();
+	}
+
+	return *this;
+}
+
 bytes::byte& bytes::at(size_t _index) {
 
 	//TODO: Avoid duplication...
@@ -174,8 +190,18 @@ bytes::byte& bytes::operator[](size_t _index) {
 	return data[_index];
 }
 
+bool bytes::operator==(const bytes& _other) const {
+
+	return data==_other.data;
+}
+
+bool bytes::operator!=(const bytes& _other) const {
+
+	return !(data==_other.data);
+}
+
 std::ostream& openssl_tools::operator<<(std::ostream& os, const bytes& _bytes) {
 
-	os<<_bytes.to_string();
+	os.write(reinterpret_cast<const char *>(_bytes.get().data()), _bytes.size());
 	return os;
 }

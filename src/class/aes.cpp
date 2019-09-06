@@ -36,7 +36,7 @@ bytes openssl_tools::aes_128_cbc_encrypt(const bytes& _key, const bytes& _iv, co
 		throw exception(ERR_error_string(ERR_get_error(), nullptr));
 	}
 
-	cypher_length+=bytes_written;
+	cypher_length+=bytes_written;	
 	return bytes{output, (size_t)cypher_length};
 }
 

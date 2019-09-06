@@ -36,7 +36,7 @@ bytes openssl_tools::base64_encode(const bytes& _bytes) {
 	BUF_MEM * bptr=nullptr;
 	BIO_get_mem_ptr(b64, &bptr);
 
-	bytes result{reinterpret_cast<const bytes::byte *>(bptr->data), bptr->length};
+	bytes result{reinterpret_cast<bytes::byte *>(bptr->data), bptr->length};
 	
 	//TODO: Use fucking RAII techniques and deleters for this.
 	BIO_set_close(bmem, BIO_NOCLOSE);
@@ -50,19 +50,34 @@ bytes openssl_tools::base64_decode(const bytes& _bytes) {
 	size_t decoded_length=base64_calculate_length(_bytes);
 	bytes result{decoded_length};	
 
-	BIO *	bio=BIO_new_mem_buf(_bytes, -1),
+	//Create a new memory buffer in _bytes, with the required size...	
+	BIO *	bio=BIO_new_mem_buf(_bytes, _bytes.size()),
+	//create a base64 io buffer.
 		*	b64=BIO_new(BIO_f_base64());
 
+	//Connect the two...
 	bio=BIO_push(b64, bio);
-	BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL); //Do not use newlines to flush buffer
-
-	int read=BIO_read(bio, result, _bytes.size());
-
-	if((int)decoded_length != read) {
-		throw base64_decode_exception(read, decoded_length, _bytes);			
-	}
+	BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+	
+	//And read, read read.
+	int read=0;
+	do {				
+		read=BIO_read(bio, result, _bytes.size());
+		if(read > 0) {
+			continue;
+		}
+//		else if(!BIO_should_retry(bio)) {
+//			throw base64_decode_exception(read, decoded_length, _bytes);			
+//		}
+//			}			
+//			}
+//			else {
+//				throw base64_decode_exception(read, decoded_length, _bytes);			
+//			}
+	}while(read > 0);
 
 	BIO_free_all(bio);
+
 	return result;
 }
 

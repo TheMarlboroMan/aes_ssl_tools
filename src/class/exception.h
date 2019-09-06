@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <sstream>
 
 #include "bytes.h"
 
@@ -26,10 +27,12 @@ class base64_decode_exception
 	bytes			subject;		//!Copy of the bytes that caused the problem
 
 					base64_decode_exception(size_t _read, size_t _expected, const bytes& _bytes):
-		exception{"failure in base64_decode"},
-		read{_read}, 
-		expected{_expected}, 
-		subject{_bytes} {}
+			exception{"failure in base64_decode"},
+			read{_read}, 
+			expected{_expected}, 
+			subject{_bytes} {
+			
+	}
 };
 
 class base64_encode_exception
@@ -39,8 +42,8 @@ class base64_encode_exception
 	bytes			subject;		//!Copy of the bytes that caused the problem
 
 					base64_encode_exception(const std::string& _msg, const bytes& _bytes):
-		exception{"failure in base64_encode : "+_msg},
-		subject{_bytes} {}
+			exception{"failure in base64_encode : "+_msg},
+			subject{_bytes} {}		
 };
 
 }

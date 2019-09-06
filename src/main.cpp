@@ -1,11 +1,14 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "class/bytes.h"
 #include "class/random.h"
 #include "class/exception.h"
 #include "class/base_64.h"
 #include "class/aes.h"
+
+void file_marker(std::ofstream& _file, std::vector<int> _values);
 
 int main(int /*argc*/, char ** /*argv*/) {
 
@@ -31,16 +34,24 @@ int main(int /*argc*/, char ** /*argv*/) {
 				b_padded_garbage(reinterpret_cast<const openssl_tools::bytes::byte *>("world"), 10), 
 				//This is the way to do padded data with a source... intentionally
 				//hard to write, of course: first the data, then the length to copy
-				//and then the desired sequence size.
+				//and then the desired sequence size... Again, please note the need
+				//for reinterpret_cast, which is a red flag on itself!
 				//10 bytes, the first 5 are hello, the rest are \0
 				b_padded(reinterpret_cast<const openssl_tools::bytes::byte *>("world"), 5, 10);
 
 
-		//Bytes have the stream output overload, for convenience sake...
+		//Bytes have the stream output overload, for convenience sake... These
+		//include the padded size, as you will be able to see in the file!
+		//If you wish a pure string, you can do to_string().
 		std::cout<<"from string: "<<b_from_string<<std::endl
 				<<"empty: "<<b_empty<<std::endl
 				<<"padded (garbage expected, should be 'world'): "<<b_padded_garbage<<std::endl
 				<<"padded: "<<b_padded<<std::endl;
+
+		{
+			std::ofstream ofile("main.dat", std::ios::trunc);
+			ofile<<b_from_string<<b_empty<<b_padded<<b_padded_garbage;
+		}
 
 
 		//Bytes can be concatenated...
@@ -64,10 +75,11 @@ int main(int /*argc*/, char ** /*argv*/) {
 		std::cout<<"16 bytes of randomness "<<b_random<<std::endl;
 
 		//better read as...
-		for(unsigned int i=0; i<b_random.size(); i++) {
-			//We can also do b_random[i]
-			std::cout<<i<<" -> "<<(unsigned)b_random.at(i)<<std::endl;
-		}
+		//for(unsigned int i=0; i<b_random.size(); i++) {
+		//	std::cout<<i<<" -> "<<(unsigned)b_random.at(i)<<std::endl;
+		//	or even
+		//	std::cout<<i<<" -> "<<(unsigned)b_random[i]<<std::endl;
+		//}
 
 		//A good idea is to get these non printable bytes and base64 them.
 		openssl_tools::bytes b64_random=openssl_tools::base64_encode(b_random);
@@ -89,7 +101,7 @@ int main(int /*argc*/, char ** /*argv*/) {
 		openssl_tools::bytes	iv=openssl_tools::random_bytes(16);
 
 		//!Finally, a message...
-		std::string msg="this will be our message";
+		std::string msg="this will be our very nice message";
 		openssl_tools::bytes	message{msg};
 
 		//The AES encryption function returns bytes...
@@ -112,16 +124,25 @@ int main(int /*argc*/, char ** /*argv*/) {
 		std::cout<<"our message :'"<<decrypted<<"'"<<std::endl;
 
 		//...well, almost.
-		std::cout<<"size of original encrypted message "<<encrypted.size()<<std::endl;
+		std::cout<<"size of message "<<msg.size()<<std::endl;
 		std::cout<<"size of decrypted message "<<decrypted.size()<<std::endl;
 
-		//These two have different sizes in bytes!!!. Padding matters. You can 
-		//always do "to_string" in string messages to rip the padding out...
+		//Padding matters, please, please, please, bear this in mind when 
+		//working with bare bytes... Even if the meaningful contents are the
+		//same, the envelope might have different sizes!!!!!
+		
+		//You can always do "to_string" in string messages to rip the padding out...
 		std::string str_decrypted=decrypted.to_string();
-
-		std::cout<<"size of stringified message "<<msg.size()<<std::endl;
 		std::cout<<"size of stringified decrypted message "<<str_decrypted.size()<<std::endl;
 		
+		//Or you can call "trimmed" to get a new trimmed bytes object...
+		auto trimmed_decrypted=decrypted.trimmed();
+		std::cout<<"size of trimmed decrypted copy "<<trimmed_decrypted.size()<<std::endl;
+
+		//Or just trim the current instance.
+		std::cout<<"size of trimmed decrypted "<<decrypted.trim().size()<<std::endl;
+
+
 		//And that's it for now. Go have fun.
 
 		return 0;
@@ -129,5 +150,13 @@ int main(int /*argc*/, char ** /*argv*/) {
 	catch(openssl_tools::exception& e) {
 		std::cerr<<"error: "<<e.what()<<std::endl;
 		return 1;
+	}
+}
+
+void file_marker(std::ofstream& _file, std::vector<int> _values) {		
+		
+	for(auto v : _values) {
+		char c=static_cast<char>(v);
+		_file.write(&c, sizeof(c));
 	}
 }

@@ -38,6 +38,17 @@ struct bytes {
 	//!eavesdropping. Not secure enough, but hey...
 								~bytes();
 
+	//!Returns a new bytes instance with its contents right trimmed of any \0
+	//!bytes.
+	bytes						trimmed();
+
+	//!Trims the current instance of any right \0 bytes.
+	bytes&						trim();
+
+	//!Equality comparison operator...
+	bool						operator==(const bytes& _other) const;
+	bool						operator!=(const bytes& _other) const;
+
 	//!Creates a new instance from the addition of two.
 	bytes 						operator+(const bytes& _other);
 	
