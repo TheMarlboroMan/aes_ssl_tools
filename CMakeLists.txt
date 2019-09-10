@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(openssl_thread_manager)
+project(openssl_tools)
 set(CMAKE_BUILD_TYPE release)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -10,7 +10,7 @@ add_compile_options(-Wall -Wextra -Wundef -Wcast-align -Wwrite-strings -Wlogical
 set(SOURCE "")
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 
-add_library(openssl_tools STATIC ${SOURCE})
+add_library(openssl_tools SHARED ${SOURCE})
 install(TARGETS openssl_tools DESTINATION /usr/local/lib)
 install(DIRECTORY src/class/ DESTINATION /usr/local/include/openssl_tools FILES_MATCHING PATTERN "*.h")
 
