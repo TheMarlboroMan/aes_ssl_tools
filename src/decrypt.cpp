@@ -30,7 +30,9 @@ int main(int argc, char ** argv) {
 				message=data.range(AES_BLOCK_SIZE),
 				decoded=openssl_tools::aes_128_cbc_decrypt(key, iv, message);
 
-		std::cout<<decoded.to_string()<<std::endl;
+		std::cout<<decoded.to_string()<<std::endl
+			<<"string size: "<<decoded.to_string().size()<<std::endl
+			<<"total blocks: "<<decoded.size()<<std::endl;
 		return 0;
 	}
 	catch(std::exception& e) {

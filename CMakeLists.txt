@@ -11,8 +11,8 @@ set(SOURCE "")
 add_subdirectory("${PROJECT_SOURCE_DIR}/src")
 
 add_library(openssl_tools STATIC ${SOURCE})
-install(TARGETS openssl_tools DESTINATION /usr/lib)
-install(DIRECTORY src/class/ DESTINATION include/openssl_tools FILES_MATCHING PATTERN "*.h")
+install(TARGETS openssl_tools DESTINATION /usr/local/lib)
+install(DIRECTORY src/class/ DESTINATION /usr/local/include/openssl_tools FILES_MATCHING PATTERN "*.h")
 
 add_executable(main src/main.cpp)
 target_link_libraries(main openssl_tools ssl crypto)
